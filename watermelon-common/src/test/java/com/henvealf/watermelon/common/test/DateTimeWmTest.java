@@ -79,4 +79,10 @@ public class DateTimeWmTest {
         System.out.println(DateTimeWm.addDateString("2018-09-01",DateTimeWm.DATE_FORMAT_STRING, Calendar.DATE, 10));
     }
 
+    @Test
+    public void testDateDiff() {
+        System.out.println(DateTimeWm.dateDiff(DateTimeWm.DATE_UNIT_DAY, "2018-08-14", "2018-09-15"));
+        System.out.println(DateTimeWm.dateDiff(DateTimeWm.DATE_UNIT_DAY, "2018-08-14", "2018-09-15"));
+    }
+
 }

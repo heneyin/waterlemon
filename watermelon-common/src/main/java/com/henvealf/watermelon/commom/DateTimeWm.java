@@ -463,6 +463,142 @@ public class DateTimeWm {
     }
 
 
+    //-------------------------------------------------------------------------
+    public static final String DATE_UNIT_HOUR = "hour";
+    public static final String DATE_UNIT_WEEK = "week";
+    public static final String DATE_UNIT_DAY = "day";
+    public static final String DATE_UNIT_MONTH = "month";
+    public static final String DATE_UNIT_YEAR = "year";
+
+
+
+    /**
+     * 计算两个时间的间隔单位数。
+     * @param unit 间隔单位。
+     * @param startDate 开始时间。
+     * @param endDate 结束时间。
+     *
+     * @return 间隔单位
+     */
+    public static long dateDiff(String unit, Date startDate, Date endDate) {
+        switch (unit) {
+            case DATE_UNIT_HOUR:
+                return (endDate.getTime() - startDate.getTime()) / (60000 * 60);
+            case DATE_UNIT_DAY:
+                return (endDate.getTime() - startDate.getTime()) / (60000 * 60 * 24);
+            case DATE_UNIT_WEEK:
+                return (endDate.getTime() - startDate.getTime()) / (60000 * 60 * 24 * 7);
+            case DATE_UNIT_MONTH:
+                return getDateDiffBase(DATE_UNIT_MONTH, startDate, endDate );
+            case DATE_UNIT_YEAR:
+                return getDateDiffBase(DATE_UNIT_YEAR, startDate, endDate);
+        }
+        return 0;
+    }
+
+    public static long dateDiff(String unit, String startDateStr, String endDateStr) {
+        try {
+            Date startDate = SIMPLE_DATE_FORMAT.parse(startDateStr);
+            Date endDate = SIMPLE_DATE_FORMAT.parse(endDateStr);
+            return dateDiff(unit, startDate, endDate);
+        } catch (ParseException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public static long dateDiff(String unit, String startDateStr, String endDateStr, String dateFormat) {
+        try {
+            SimpleDateFormat format = new SimpleDateFormat(dateFormat);
+            Date startDate = format.parse(startDateStr);
+            Date endDate = format.parse(endDateStr);
+            return dateDiff(unit, startDate, endDate);
+        } catch (ParseException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public static long dateDiff(String unit,
+                                String startDateStr, String startDateFormat,
+                                String endDateStr, String endDateFormat) {
+        try {
+            SimpleDateFormat startFormat = new SimpleDateFormat(startDateFormat);
+            SimpleDateFormat endFormat = new SimpleDateFormat(endDateFormat);
+            Date startDate = startFormat.parse(startDateStr);
+            Date endDate = endFormat.parse(endDateStr);
+            return dateDiff(unit, startDate, endDate);
+        } catch (ParseException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+
+
+    public static Calendar getCalendarByDate(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar;
+    }
+
+    private static long getDateDiffBase(String unit, Date startDate, Date endDate) {
+        Calendar startCalendar = getCalendarByDate(startDate);
+        Calendar endCalendar = getCalendarByDate(endDate);
+
+        long startMillSecond = startCalendar.get(Calendar.MILLISECOND);
+        long endMillSecond = endCalendar.get(Calendar.MILLISECOND);
+
+        long startSecond = startCalendar.get(Calendar.SECOND);
+        long endSecond = endCalendar.get(Calendar.SECOND);
+
+        long startMinute = startCalendar.get(Calendar.MINUTE);
+        long endMinute = endCalendar.get(Calendar.MINUTE);
+
+        long startHour = startCalendar.get(Calendar.HOUR_OF_DAY);
+        long endHour = endCalendar.get(Calendar.HOUR_OF_DAY);
+
+        long startDay = startCalendar.get(Calendar.DAY_OF_MONTH);
+        long endDay = endCalendar.get(Calendar.DAY_OF_MONTH);
+
+        long startMonth = startCalendar.get(Calendar.MONTH);
+        long endMonth = endCalendar.get(Calendar.MONTH);
+
+        long startYear = startCalendar.get(Calendar.YEAR);
+        long endYear = endCalendar.get(Calendar.YEAR);
+
+        long yearDis = endYear - startYear;
+        long monthDis = endMonth - startMonth;
+        long dayDis = getCarry(endDay - startDay);
+        long hourDis = getCarry(endHour - startHour);
+        long minuteDis = getCarry(endMinute - startMinute);
+        long secondDis = getCarry(endSecond - startSecond);
+        long millSecondDis = getCarry(endMillSecond - startMillSecond);
+
+        switch (unit) {
+            case DATE_UNIT_MONTH:
+                long mid = yearDis * 12 + monthDis;
+                if (dayDis != 0) return mid + dayDis;
+                if (hourDis != 0) return mid + hourDis;
+                if (minuteDis != 0) return mid + minuteDis;
+                if (secondDis != 0) return mid + secondDis;
+                if (millSecondDis != 0) return mid + millSecondDis;
+                return mid;
+            case DATE_UNIT_YEAR:
+                if (monthDis != 0) return yearDis + hourDis;
+                if (dayDis != 0) return yearDis + dayDis;
+                if (hourDis != 0) return yearDis + hourDis;
+                if (minuteDis != 0) return yearDis + minuteDis;
+                if (secondDis != 0) return yearDis + secondDis;
+                if (millSecondDis != 0) return yearDis + millSecondDis;
+                return yearDis;
+        }
+        return 0;
+    }
+
+    // 获取时间计算用到的进位。
+    private static long getCarry(long value) {
+        if (value < 0) return -1;
+        return 0;
+    }
+
 //    // 获取前一天
 //    public static String getPreviousDay() {
 //        return DateFormatUtils.format(
