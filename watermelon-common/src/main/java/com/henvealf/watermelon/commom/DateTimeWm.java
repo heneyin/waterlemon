@@ -566,31 +566,42 @@ public class DateTimeWm {
 
         long yearDis = endYear - startYear;
         long monthDis = endMonth - startMonth;
-        long dayDis = getCarry(endDay - startDay);
-        long hourDis = getCarry(endHour - startHour);
-        long minuteDis = getCarry(endMinute - startMinute);
-        long secondDis = getCarry(endSecond - startSecond);
-        long millSecondDis = getCarry(endMillSecond - startMillSecond);
+        long dayDis = endDay - startDay;
+        long hourDis = endHour - startHour;
+        long minuteDis = endMinute - startMinute;
+        long secondDis = endSecond - startSecond;
+        long millSecondDis = endMillSecond - startMillSecond;
+        long midResult;
 
         switch (unit) {
             case DATE_UNIT_MONTH:
-                long mid = yearDis * 12 + monthDis;
-                if (dayDis != 0) return mid + dayDis;
-                if (hourDis != 0) return mid + hourDis;
-                if (minuteDis != 0) return mid + minuteDis;
-                if (secondDis != 0) return mid + secondDis;
-                if (millSecondDis != 0) return mid + millSecondDis;
-                return mid;
+                midResult = yearDis * 12 + monthDis;
+                break;
             case DATE_UNIT_YEAR:
-                if (monthDis != 0) return yearDis + hourDis;
-                if (dayDis != 0) return yearDis + dayDis;
-                if (hourDis != 0) return yearDis + hourDis;
-                if (minuteDis != 0) return yearDis + minuteDis;
-                if (secondDis != 0) return yearDis + secondDis;
-                if (millSecondDis != 0) return yearDis + millSecondDis;
-                return yearDis;
+                if (monthDis < 0) return yearDis - 1;
+                if (monthDis > 0) return yearDis;
+                midResult = yearDis;
+                break;
+            default:
+                throw new IllegalArgumentException("not support unit: " + unit);
         }
-        return 0;
+
+        if (dayDis < 0) return midResult - 1;
+        if (dayDis > 0) return midResult;
+
+        if (hourDis < 0) return midResult -1 ;
+        if (hourDis > 0) return midResult;
+
+        if (minuteDis < 0) return midResult - 1;
+        if (minuteDis > 0) return midResult;
+
+        if (secondDis < 0) return midResult - 1;
+        if (secondDis > 0) return midResult;
+
+        if (millSecondDis < 0) return midResult - 1;
+        if (millSecondDis > 0) return midResult;
+
+        return midResult;
     }
 
     // 获取时间计算用到的进位。

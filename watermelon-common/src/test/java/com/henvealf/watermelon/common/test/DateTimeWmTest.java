@@ -81,8 +81,39 @@ public class DateTimeWmTest {
 
     @Test
     public void testDateDiff() {
-        System.out.println(DateTimeWm.dateDiff(DateTimeWm.DATE_UNIT_DAY, "2018-08-14", "2018-09-15"));
-        System.out.println(DateTimeWm.dateDiff(DateTimeWm.DATE_UNIT_DAY, "2018-08-14", "2018-09-15"));
+        testDateDiff(DateTimeWm.DATE_UNIT_DAY, "2018-03-04 12:12:12.111","2018-03-04 12:12:12.000");
+        testDateDiff(DateTimeWm.DATE_UNIT_DAY, "2018-03-04 12:12:12.111","2018-03-04 12:12:12.111");
+        testDateDiff(DateTimeWm.DATE_UNIT_DAY, "2018-03-04 12:12:12.111","2018-03-04 12:12:12.222");
+        System.out.println();
+        testDateDiff(DateTimeWm.DATE_UNIT_DAY, "2018-03-04 12:12:12.000","2018-03-04 12:12:11.333");
+        testDateDiff(DateTimeWm.DATE_UNIT_DAY, "2018-03-04 12:12:13.000","2018-03-04 12:12:11.333");
+        System.out.println();
+        testDateDiff(DateTimeWm.DATE_UNIT_DAY, "2018-03-04 01:12:13.000","2018-03-04 02:12:11.333");
+        testDateDiff(DateTimeWm.DATE_UNIT_DAY, "2018-03-04 02:12:13.000","2018-03-04 01:17:11.333");
+        System.out.println();
+        testDateDiff(DateTimeWm.DATE_UNIT_DAY, "2018-03-05 02:12:13.000","2018-03-04 01:17:11.333");
+        testDateDiff(DateTimeWm.DATE_UNIT_DAY, "2018-03-04 02:12:13.000","2018-03-05 01:17:11.333");
+        testDateDiff(DateTimeWm.DATE_UNIT_DAY, "2018-03-04 02:12:13.000","2018-03-05 02:17:11.333");
+        testDateDiff(DateTimeWm.DATE_UNIT_DAY, "2018-03-04 02:12:13.000","2018-03-10 02:17:11.333");
+        System.out.println();
+        testDateDiff(DateTimeWm.DATE_UNIT_MONTH, "2018-03-04 02:12:13.000","2018-04-03 02:17:11.333");
+        testDateDiff(DateTimeWm.DATE_UNIT_MONTH, "2018-03-04 02:12:13.000","2018-04-05 02:17:11.333");
+        testDateDiff(DateTimeWm.DATE_UNIT_MONTH, "2018-03-04 02:12:13.000","2018-04-04 02:12:13.000");
+        testDateDiff(DateTimeWm.DATE_UNIT_MONTH, "2018-03-04 02:12:13.333","2018-04-04 02:12:13.000");
+        testDateDiff(DateTimeWm.DATE_UNIT_MONTH, "2018-03-04 02:12:13.333","2018-04-04 02:12:14.000");
+        testDateDiff(DateTimeWm.DATE_UNIT_MONTH, "2018-03-04 02:12:13.333","2018-04-04 02:13:10.000");
+        testDateDiff(DateTimeWm.DATE_UNIT_MONTH, "2018-03-04 02:12:13.333","2018-04-04 03:13:10.000");
+        testDateDiff(DateTimeWm.DATE_UNIT_MONTH, "2018-03-04 02:12:13.333","2018-04-10 03:13:10.000");
+        testDateDiff(DateTimeWm.DATE_UNIT_MONTH, "2018-03-04 02:12:13.333","2018-05-10 03:13:10.000");
+        testDateDiff(DateTimeWm.DATE_UNIT_MONTH, "2018-03-04 02:12:13.333","2019-05-10 03:13:10.000");
+        testDateDiff(DateTimeWm.DATE_UNIT_MONTH, "2018-03-04 02:12:13.333","2017-05-10 03:13:10.000");
+        System.out.println();
+        testDateDiff(DateTimeWm.DATE_UNIT_YEAR, "2018-05-10 03:13:10.333","2017-05-10 03:13:10.000");
+    }
+
+    private void testDateDiff(String unit, String startDate, String endDate) {
+        System.out.println(String.format("unit: %s, startDate: %s, endDate: %s = %s",
+                                unit, startDate, endDate, DateTimeWm.dateDiff(unit, startDate, endDate,"yyyy-MM-dd HH:mm:ss.SSS")));
     }
 
 }
