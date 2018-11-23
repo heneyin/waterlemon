@@ -1,4 +1,4 @@
-package com.henvealf.watermelon.commom;
+package com.henvealf.watermelon.common;
 
 import org.apache.commons.lang.time.FastDateFormat;
 

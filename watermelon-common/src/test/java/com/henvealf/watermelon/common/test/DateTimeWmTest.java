@@ -1,6 +1,6 @@
 package com.henvealf.watermelon.common.test;
 
-import com.henvealf.watermelon.commom.DateTimeWm;
+import com.henvealf.watermelon.common.DateTimeWm;
 import org.junit.Test;
 
 import java.util.Calendar;
