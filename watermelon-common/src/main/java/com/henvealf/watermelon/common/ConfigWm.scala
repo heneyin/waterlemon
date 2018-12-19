@@ -1,4 +1,4 @@
-package com.henvealf.watermelon.commom
+package com.henvealf.watermelon.common
 
 import java.io.FileInputStream
 import java.util.Properties
@@ -27,6 +27,18 @@ object ConfigWm {
     val in = new FileInputStream(fileName)
     properties.load(in)
     in.close()
+    properties
+  }
+
+  def getPropertiesFromClassPath(filePath: String):Properties = {
+    val properties = new Properties()
+    val url = Option(ClassLoader.getSystemClassLoader.getResourceAsStream(filePath))
+    url match {
+      case Some(pro) =>
+        properties.load(pro)
+        pro.close()
+      case None => System.err.println(s"can not found file: $filePath" )
+    }
     properties
   }
 
