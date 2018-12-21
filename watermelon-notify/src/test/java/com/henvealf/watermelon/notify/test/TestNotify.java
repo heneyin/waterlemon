@@ -12,12 +12,16 @@ public class TestNotify {
     public void pre() throws Exception {
         NotifyClient notifyClient = new NotifyClient("localhost:2181", "/henvealf/notify");
         notifyClient.start();
-        for (int i = 0; i < 100; i++) {
+
+        for (int i = 0; i < 10; i++) {
             notifyClient.sendNotify();
-            Thread.sleep(100);
+//            Thread.sleep(100);
         }
+
         Thread.sleep(1000);
         notifyClient.close();
     }
+
+
 
 }
