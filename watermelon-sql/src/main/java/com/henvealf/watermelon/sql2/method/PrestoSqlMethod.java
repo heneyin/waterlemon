@@ -1,17 +1,18 @@
-package com.henvealf.watermelon.sql2;
+package com.henvealf.watermelon.sql2.method;
+
+import com.henvealf.watermelon.sql2.SqlField;
 
 /**
  * <p>
  *
  * <p>
  *
- * @author hongliang.yin/Henvealf on 2019/1/26
+ * @author hongliang.yin/Henvealf on 2019/1/30
  */
-public class SparkSqlMethod extends SqlMethod {
-
+public class PrestoSqlMethod extends SqlMethod {
     @Override
     public SqlField arrayContains(Object arrayColName, Object value) {
-        return methodWithArg("array_contains", value);
+        return null;
     }
 
     @Override

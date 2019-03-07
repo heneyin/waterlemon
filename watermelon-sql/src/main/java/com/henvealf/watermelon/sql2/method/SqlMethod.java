@@ -1,4 +1,8 @@
-package com.henvealf.watermelon.sql2;
+package com.henvealf.watermelon.sql2.method;
+
+import com.henvealf.watermelon.sql2.SqlField;
+import com.henvealf.watermelon.sql2.SqlTypeCheck;
+import com.henvealf.watermelon.sql2.SqlUtils;
 
 import javax.swing.*;
 

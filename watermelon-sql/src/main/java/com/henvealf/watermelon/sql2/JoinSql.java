@@ -80,12 +80,20 @@ public class JoinSql implements SqlInterface {
         return this;
     }
 
+    @Override
+    public SqlInterface and(SqlField condition) {
+        return and(SqlConditions.methodCondition(condition));
+    }
+
     public SqlInterface or(SqlCondition condition) {
         Preconditions.checkNotNull(whereCondition);
         whereCondition.or().condition(condition);
         return this;
     }
 
+    public SqlInterface or(SqlField condition) {
+        return or(SqlConditions.methodCondition(condition));
+    }
     // ----------------- join 结束关键字
     public Sql groupBy(Object... cols) {
         sql.groupBy(cols);
@@ -121,10 +129,10 @@ public class JoinSql implements SqlInterface {
         StringBuilder sb = new StringBuilder();
         sb.append(joinType).append(" JOIN ").append(tableName.toStringAsSubSql());
         if (onCondition != null) {
-            sb.append(" ON ").append(onCondition.assumble());
+            sb.append(" ON ").append(onCondition.assemble());
         }
         if (whereCondition != null) {
-            sb.append(" WHERE ").append(whereCondition.assumble());
+            sb.append(" WHERE ").append(whereCondition.assemble());
         }
         return sb.toString();
     }

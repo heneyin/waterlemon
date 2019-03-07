@@ -61,7 +61,11 @@ public interface SqlInterface {
 
     SqlInterface and(SqlCondition condition);
 
+    SqlInterface and(SqlField condition);
+
     SqlInterface or(SqlCondition condition);
+
+    SqlInterface or(SqlField condition);
 
     SqlInterface groupBy(Object... cols);
 

@@ -1,10 +1,6 @@
 package com.henvealf.watermelon.sql2;
 
 import com.google.common.base.Preconditions;
-import com.henvealf.watermelon.sql.IllegalArgTypeException;
-import com.henvealf.watermelon.sql.SqlBuilder;
-import com.henvealf.watermelon.sql.SqlField;
-import com.henvealf.watermelon.sql.SqlLiteral;
 
 import java.util.ArrayList;
 import java.util.List;

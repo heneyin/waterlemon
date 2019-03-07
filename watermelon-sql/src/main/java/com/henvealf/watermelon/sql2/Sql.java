@@ -99,8 +99,21 @@ public class Sql implements SqlInterface {
     }
 
     @Override
+    public SqlInterface and(SqlField condition) {
+        addAndCondition(SqlConditions.methodCondition(condition));
+        return this;
+    }
+
+    @Override
     public SqlInterface or(SqlCondition condition) {
         addOrCondition(condition);
+        return this;
+    }
+
+
+    @Override
+    public SqlInterface or(SqlField condition) {
+        addOrCondition(SqlConditions.methodCondition(condition));
         return this;
     }
 
@@ -177,7 +190,7 @@ public class Sql implements SqlInterface {
                 .append(" FROM ").append(SqlUtils.joinStr(fromTables, SqlInterface::toStringAsSubSql));
 
         if (onCondition != null) {
-            sb.append(" ON ").append(onCondition.assumble());
+            sb.append(" ON ").append(onCondition.assemble());
         }
 
         if (SqlUtils.notNullAndEmptyList(joinSqls)) {
@@ -185,7 +198,7 @@ public class Sql implements SqlInterface {
         }
 
         if (whereCondition != null) {
-            sb.append(" WHERE ").append(whereCondition.assumble());
+            sb.append(" WHERE ").append(whereCondition.assemble());
         }
 
         if (SqlUtils.notNullAndEmptyList(groupByFields)) {
@@ -193,7 +206,7 @@ public class Sql implements SqlInterface {
         }
 
         if (havingCondition != null) {
-            sb.append(" HAVING ").append(havingCondition.assumble());
+            sb.append(" HAVING ").append(havingCondition.assemble());
         }
 
         if (SqlUtils.notNullAndEmptyList(orderByFields)) {

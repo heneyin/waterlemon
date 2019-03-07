@@ -1,5 +1,9 @@
 package com.henvealf.watermelon.sql2;
 
+import com.henvealf.watermelon.sql2.method.PrestoSqlMethod;
+import com.henvealf.watermelon.sql2.method.SparkSqlMethod;
+import com.henvealf.watermelon.sql2.method.SparkSqlMethodFactory;
+import com.henvealf.watermelon.sql2.method.SqlMethod;
 import org.checkerframework.checker.units.qual.A;
 
 /**
@@ -42,4 +46,13 @@ public class SqlShortcuts {
     public static SqlInterface select(Object... field) {
         return new Sql().select(field);
     }
+
+    public static SqlMethod sparkM() {
+        return new SparkSqlMethod();
+    }
+
+    public static SqlMethod prestoM() {
+        return new PrestoSqlMethod();
+    }
+
 }

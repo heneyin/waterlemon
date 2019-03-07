@@ -112,18 +112,13 @@ public class SqlConditionAssembler {
             }
         }
 
-//        else if(!sqlCondition.isLeaf() && !root.symbolEqual(sqlCondition) && sqlCondition.childrenSize() > 0 ) {
-//            root = root.joinParent(sqlCondition);
-//        } else if(!sqlCondition.isLeaf() && root.symbolEqual(sqlCondition)) {
-//            root.addChild(sqlCondition);
-//        }
     }
 
     public SqlCondition getRoot() {
         return root;
     }
 
-    public String assumble() {
+    public String assemble() {
         return root.toSqlString();
     }
 }

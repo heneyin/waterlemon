@@ -1,6 +1,5 @@
 package com.henvealf.watermelon.sql2;
 
-import com.henvealf.watermelon.sql.IllegalArgTypeException;
 
 /**
  * <p>

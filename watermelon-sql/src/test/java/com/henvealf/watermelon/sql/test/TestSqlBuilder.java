@@ -1,11 +1,13 @@
 package com.henvealf.watermelon.sql.test;
 
 import com.henvealf.watermelon.sql2.*;
+import com.henvealf.watermelon.sql2.method.SparkSqlMethod;
+import com.henvealf.watermelon.sql2.method.SparkSqlMethodFactory;
+import com.henvealf.watermelon.sql2.method.SqlMethod;
+import com.henvealf.watermelon.sql2.method.SqlMethodFactory;
 import org.junit.Test;
 
-import static com.henvealf.watermelon.sql2.SqlShortcuts.col;
-import static com.henvealf.watermelon.sql2.SqlShortcuts.select;
-import static com.henvealf.watermelon.sql2.SqlShortcuts.sql;
+import static com.henvealf.watermelon.sql2.SqlShortcuts.*;
 
 /**
  * <p>
@@ -111,10 +113,12 @@ public class TestSqlBuilder {
 
     @Test
     public void testMethod() {
-        SqlMethod method = new SparkSqlMethod();
-        select(method.max(col("age")), "group_id")
+        SqlMethodFactory mef = new SparkSqlMethodFactory();
+
+        select(mef.p().max(col("age")), "group_id")
                 .from("groups")
-                .where(col("group_id").gt(123)).and(col("123").method(method.arrayContains("ips", "qweqweq")))
+                .where(col("group_id").gt(123))
+                .and(mef.p().arrayContains("ips", ltr("qweqweq")))
                 .groupBy("group_id")
                 .limit(10).print();
     }
@@ -170,7 +174,7 @@ public class TestSqlBuilder {
         assumbler.linkNew(new SqlCondition("d", "=", "e"));
         assumbler.linkNew(new SqlCondition("OR"));
         assumbler.linkNew(new SqlCondition("C", "=", "C"));
-        System.out.println(assumbler.assumble());
+        System.out.println(assumbler.assemble());
     }
 
     @Test
@@ -183,7 +187,7 @@ public class TestSqlBuilder {
         assumbler.linkNew(SqlConditions.andCondition());
         assumbler.linkNew(SqlConditions.eqCondition("d", "f"));
 
-        System.out.println(assumbler.assumble());
+        System.out.println(assumbler.assemble());
 
     }
 
@@ -203,7 +207,7 @@ public class TestSqlBuilder {
                 .and().condition(new SqlConditionAssembler().eq("_Qwe", "qwdqd")
                 .or().eq("rtd", "_213").getRoot());
 
-        System.out.println(assumbler.assumble());
+        System.out.println(assumbler.assemble());
     }
 
 

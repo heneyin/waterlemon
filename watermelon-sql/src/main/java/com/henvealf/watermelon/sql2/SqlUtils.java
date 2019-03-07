@@ -1,7 +1,6 @@
 package com.henvealf.watermelon.sql2;
 
 import com.google.common.base.Preconditions;
-import com.henvealf.watermelon.sql.SqlLiteral;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
