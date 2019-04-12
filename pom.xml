@@ -29,13 +29,12 @@
         <module>watermelon-tokafka</module>
         <module>watermelon-notify</module>
         <module>watermelon-sql</module>
+        <module>watermelon-spark</module>
     </modules>
 
 
 
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/org.mongodb/mongo-java-driver -->
-
 
         <!-- https://mvnrepository.com/artifact/junit/junit -->
         <dependency>
@@ -93,6 +92,19 @@
                 <scope>provided</scope>
             </dependency>
 
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-streaming_${scala.version}</artifactId>
+                <version>${spark.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-streaming-kafka-0-10_2.11</artifactId>
+                <version>${spark.version}</version>
+            </dependency>
+
             <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -141,6 +153,8 @@
             </dependency>
 
 
+
+
         </dependencies>
     </dependencyManagement>
 
@@ -162,7 +176,12 @@
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
-                <version>3.2.1</version>
+                <version>4.0.1</version>
+
+                <configuration>
+                    <scalaVersion>${scala.version}</scalaVersion>
+                </configuration>
+
             </plugin>
 
         </plugins>

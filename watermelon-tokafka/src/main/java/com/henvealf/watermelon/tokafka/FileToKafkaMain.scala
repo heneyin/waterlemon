@@ -37,7 +37,7 @@ object FileToKafkaMain {
     }
 
 
-    val kafkaProps = ConfigWm.getPropertiesFromFileName("kafka.properties")
+    val kafkaProps = ConfigWm.getPropertiesByFileName("kafka.properties")
     val sparkConf: SparkConf = new SparkConf()
     val sc: SparkContext = new SparkContext(sparkConf)
 

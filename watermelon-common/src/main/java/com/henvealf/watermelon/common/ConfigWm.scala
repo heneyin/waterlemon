@@ -4,6 +4,8 @@ import java.io.FileInputStream
 import java.util.Properties
 
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
+
 
 
 /**
@@ -12,9 +14,9 @@ import scala.collection.mutable
   */
 object ConfigWm {
 
-  def getConfigMapFormFileName(fileName: String): Map[String, String] = {
+  def getConfigMapByFileName(fileName: String): Map[String, String] = {
     import collection.JavaConverters._
-    val properties = getPropertiesFromFileName(fileName)
+    val properties = getPropertiesByFileName(fileName)
     val resultMap = mutable.HashMap[String, String]()
     for( name <- properties.stringPropertyNames().asScala ) {
       resultMap.put(name, properties.getProperty(name))
@@ -22,7 +24,19 @@ object ConfigWm {
     resultMap.toMap
   }
 
-  def getPropertiesFromFileName(fileName: String): Properties = {
+  def getConfigTuplesByFileName(fileName: String): List[(String, String)] = {
+    import collection.JavaConverters._
+    val properties = getPropertiesByFileName(fileName)
+
+    val resultList = ListBuffer[(String, String)]()
+
+    for( name <- properties.stringPropertyNames().asScala ) {
+      resultList += ((name , properties.getProperty(name)))
+    }
+    resultList.toList
+  }
+
+  def getPropertiesByFileName(fileName: String): Properties = {
     val properties = new Properties()
     val in = new FileInputStream(fileName)
     properties.load(in)
@@ -30,7 +44,7 @@ object ConfigWm {
     properties
   }
 
-  def getPropertiesFromClassPath(filePath: String):Properties = {
+  def getPropertiesByClassPath(filePath: String):Properties = {
     val properties = new Properties()
     val url = Option(ClassLoader.getSystemClassLoader.getResourceAsStream(filePath))
     url match {
@@ -41,5 +55,6 @@ object ConfigWm {
     }
     properties
   }
+
 
 }
