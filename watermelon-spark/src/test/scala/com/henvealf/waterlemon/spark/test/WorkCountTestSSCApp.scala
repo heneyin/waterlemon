@@ -1,15 +1,10 @@
 package com.henvealf.waterlemon.spark.test
 
 import com.henvealf.watermelon.common.ConfigWm
-import com.henvealf.watermelon.spark.streaming.{KafkaOffsetManagerInZK, KafkaSparkStreamApp}
+import com.henvealf.watermelon.spark.streaming.{AppConfigConstant, KafkaOffsetManagerInZK, KafkaSparkStreamApp}
 import org.apache.kafka.clients.consumer.ConsumerRecord
-import org.apache.spark.rdd.RDD
+import org.apache.spark.streaming.dstream.{DStream, InputDStream}
 import org.apache.spark.streaming.{Duration, Milliseconds, StreamingContext}
-
-import collection.JavaConverters._
-import java.util
-
-import org.apache.spark.util.LongAccumulator
 
 /**
   * <p>
@@ -20,11 +15,26 @@ import org.apache.spark.util.LongAccumulator
   */
 class WorkCountTestSSCApp(sparkConfigTuple: List[(String, String)],
                           kafkaConfig: Map[String, String],
-                          appConfig: Map[String, String]) extends KafkaSparkStreamApp[String, String](sparkConfigTuple, kafkaConfig, appConfig){
+                          appConfig: Map[String, String]) extends KafkaSparkStreamApp[String, String](sparkConfigTuple, kafkaConfig, appConfig) with Serializable{
 
-  val CONFIG_DURATION = "duration.ms"
 
-  var accu: LongAccumulator = null
+  override def handle(stream: DStream[ConsumerRecord[String, String]]): Unit = {
+
+    // 用了window就不能获得offset了。
+    // 窗口长度为每次计算的批次
+    // 滑动间隔，为每几秒滑动一次。
+    stream.map(r => r.value()).window(Milliseconds(15000), Milliseconds(20000)).foreachRDD(rdd => {
+      val re = rdd.map(r => (r, 1)).reduceByKey(_ + _)
+      re.foreach(println)
+      println("-------")
+    })
+
+    stream.foreachRDD(rdd => {
+      saveOffset(rdd, stream)
+    })
+
+    ssc.checkpoint(appConfig.getOrElse(AppConfigConstant.CHECK_POINT_DIR, null))
+  }
 
   def this(sparkConfigFileName: String,
            kafkaConfigFile: String,
@@ -34,28 +44,10 @@ class WorkCountTestSSCApp(sparkConfigTuple: List[(String, String)],
       ConfigWm.getConfigMapByFileName(appConfigFileName)
     )
 
-  override def ready(ssc: StreamingContext, appConfig: Map[String, String]): Unit = {
-    accu = ssc.sparkContext.longAccumulator("total")
-  }
-
-  override def rddOperate(rdd: RDD[ConsumerRecord[String, String]],
-                       streamingContext: StreamingContext,
-                       appConfig: Map[String, String]): Unit = {
-
-    val result: Long = rdd.map(a => 1L).count()
-    accu.add(result)
-
-    println("result" + accu.value)
-  }
-
-  override def getStreamDuration(appConfig: Map[String, String]): Duration = {
-    val dur = appConfig.getOrElse(CONFIG_DURATION, "1000").toLong
-    Milliseconds(dur)
-  }
-
 }
 
-object WorkCountTestSSCApp {
+
+object WorkCountTestSSCAppMain {
   def main(args: Array[String]): Unit = {
     val app = new WorkCountTestSSCApp("watermelon-spark/src/main/resources/sparkConfig.properties",
       "watermelon-spark/src/main/resources/kafkaParams.properties",

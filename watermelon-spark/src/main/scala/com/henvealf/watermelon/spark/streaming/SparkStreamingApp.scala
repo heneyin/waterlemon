@@ -2,18 +2,16 @@ package com.henvealf.watermelon.spark.streaming
 
 import java.util
 
-import com.henvealf.watermelon.common.ConfigWm
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
-import org.apache.spark.streaming.dstream.InputDStream
-import org.apache.spark.streaming.kafka010.{CanCommitOffsets, HasOffsetRanges, KafkaUtils}
+import org.apache.spark.streaming.dstream.{DStream, InputDStream}
+import org.apache.spark.streaming.kafka010.{CanCommitOffsets, HasOffsetRanges, KafkaUtils, OffsetRange}
 import org.apache.spark.streaming.{Duration, Milliseconds, Seconds, StreamingContext}
 import org.apache.spark.streaming.kafka010.ConsumerStrategies.Subscribe
 import org.apache.spark.streaming.kafka010.ConsumerStrategies.Assign
 import org.apache.spark.streaming.kafka010.LocationStrategies.PreferConsistent
 
-import collection.JavaConverters._
 
 /**
   * <p>
@@ -28,60 +26,56 @@ import collection.JavaConverters._
   */
 trait SparkStreamingApp[KEY, VALUE] {
 
-  val ssc: StreamingContext
+  val ssc: StreamingContext = createStreamingContext()
 
-  def getStreamDuration(appConfig: Map[String, String]) : Duration
+  def createStreamingContext(): StreamingContext
 
-  def getStream: InputDStream[ConsumerRecord[KEY, VALUE]]
+  def getStream(): InputDStream[ConsumerRecord[KEY, VALUE]]
 
-  /**
-    * 一些准备操作，比如增量器、广播器的定义。
-    * @param streamContext
-    * @param appConfig
-    */
-  def ready(streamContext: StreamingContext, appConfig: Map[String, String])
-
-  /**
-    * 在 RDD 上的操作。
-    * @param rdd
-    * @param streamContext
-    * @param appConfig
-    */
-  def rddOperate(rdd: RDD[ConsumerRecord[KEY, VALUE]], streamContext: StreamingContext, appConfig: Map[String, String])
+  def handle(stream: DStream[ConsumerRecord[KEY, VALUE]])
 
   def start()
 
 }
 
+/**
+  * Spark Streaming app that consumer kafka.
+  * @param sparkConfigTuple spark config
+  * @param kafkaConfig      kafka consumer config
+  * @param appConfig        app owner config
+  * @tparam KEY      Record key type
+  * @tparam VALUE    Record value type
+  */
 abstract class KafkaSparkStreamApp [KEY, VALUE] (sparkConfigTuple: List[(String, String)],
                                                  kafkaConfig: Map[String, String],
                                                  appConfig: Map[String, String]) extends SparkStreamingApp[KEY, VALUE] {
 
-  val ssc: StreamingContext = {
+
+
+
+  override def createStreamingContext(): StreamingContext = {
     val conf = new SparkConf().setAll(sparkConfigTuple)
-    new StreamingContext(conf, getStreamDuration(appConfig))
+    conf.registerKryoClasses(util.Arrays.asList(classOf[ConsumerRecord[_, _]]).toArray.asInstanceOf[Array[Class[_]]])
+    val durationMs = appConfig.getOrElse("duration.ms", "5000").toLong
+
+    appConfig.get(AppConfigConstant.CHECK_POINT_DIR) match {
+      case Some(checkpointDirectory) => StreamingContext.getOrCreate(checkpointDirectory,
+                                                              () =>  new StreamingContext(conf, Milliseconds(durationMs)))
+      case None =>  new StreamingContext(conf, Milliseconds(durationMs))
+    }
   }
+
 
   // 是否使用外部偏移量管理器,如果外部偏移量管理器没有设置，则不会使用。
   var useOffsetManager = true
   var kafkaOffsetManager: Option[KafkaOffsetManager] = None
 
-//  def this(sparkConfigFileName: String,
-//           kafkaConfigFile: String,
-//           appConfigFileName: String) =
-//    this( ConfigWm.getConfigTuplesByFileName(sparkConfigFileName),
-//      ConfigWm.getConfigMapByFileName(kafkaConfigFile),
-//      ConfigWm.getConfigMapByFileName(appConfigFileName)
-//    )
-
   override def getStream(): InputDStream[ConsumerRecord[KEY, VALUE]] = {
-//    val topics = Array("topicA", "topicB")
-    val topics = appConfig.get("topics")
 
-    val topicArray = if (topics.nonEmpty) {
-      topics.get.split("\\w*,\\w*")
-    } else {
-      throw new RuntimeException("Please set config 'topics' in file appConfig.properties")
+    val topicArray = appConfig.get("topics") match {
+      // topic 用逗号分隔。
+      case Some(value) => value.split("\\w*,\\w*")
+      case None => throw new RuntimeException("Please set config 'topics' in file appConfig.properties")
     }
 
     if (ssc == null) {
@@ -122,26 +116,34 @@ abstract class KafkaSparkStreamApp [KEY, VALUE] (sparkConfigTuple: List[(String,
   }
 
   override def start(): Unit = {
-    ready(ssc, appConfig)
     val stream = getStream()
-    stream.foreachRDD(rdd => {
-      val offsetRanges = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
-      println(s"offsetRange: ${offsetRanges.mkString("~~")}")
-      rddOperate(rdd, ssc, appConfig)
-
-      if (useOffsetManager) {
-        kafkaOffsetManager.foreach(_.saveOffset(offsetRanges))
-      } else {
-        stream.asInstanceOf[CanCommitOffsets].commitAsync(offsetRanges)
-      }
-
-    })
+    handle(stream)
     ssc.start()             // Start the computation
     ssc.awaitTermination()
     kafkaOffsetManager.foreach(_.close())
   }
 
+  def getOffsetRangesFromRDD(rdd: RDD[ConsumerRecord[KEY, VALUE]]): Array[OffsetRange] = {
+    rdd.asInstanceOf[HasOffsetRanges].offsetRanges
+  }
+
+  def saveOffset(offsetRanges: Array[OffsetRange], stream: DStream[ConsumerRecord[KEY, VALUE]]): Unit = {
+      if (useOffsetManager) {
+        kafkaOffsetManager.foreach(_.saveOffset(offsetRanges))
+      } else {
+        stream.asInstanceOf[CanCommitOffsets].commitAsync(offsetRanges)
+      }
+  }
+
+  def saveOffset(rdd: RDD[ConsumerRecord[KEY, VALUE]], stream : DStream[ConsumerRecord[KEY, VALUE]]): Unit = {
+    val offsets = getOffsetRangesFromRDD(rdd)
+    saveOffset(offsets, stream)
+  }
 
 }
 
+
+object AppConfigConstant {
+  val CHECK_POINT_DIR = "checkpoint.dir"
+}
 

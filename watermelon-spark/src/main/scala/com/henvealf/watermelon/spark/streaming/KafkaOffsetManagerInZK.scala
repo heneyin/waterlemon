@@ -55,7 +55,6 @@ class KafkaOffsetManagerInZK(zkServers: String, savedPath: String) extends Kafka
       sb.append(topicPartition.toString).append("=").append(c)
       sb.append("\n")
     }
-    println(sb.toString())
     client.setData().forPath(finalPath, sb.toString().getBytes())
   }
 
