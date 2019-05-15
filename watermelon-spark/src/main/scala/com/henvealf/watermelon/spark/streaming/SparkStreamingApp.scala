@@ -26,14 +26,29 @@ import org.apache.spark.streaming.kafka010.LocationStrategies.PreferConsistent
   */
 trait SparkStreamingApp[KEY, VALUE] {
 
-  val ssc: StreamingContext = createStreamingContext()
-
+  /**
+    * 创建 spark streaming context。
+    * @return
+    */
   def createStreamingContext(): StreamingContext
 
-  def getStream(): InputDStream[ConsumerRecord[KEY, VALUE]]
+  /**
+    * 初始化流的方法。
+    * @param ssc
+    * @return
+    */
+  def getStream(ssc: StreamingContext): DStream[ConsumerRecord[KEY, VALUE]]
 
-  def handle(stream: DStream[ConsumerRecord[KEY, VALUE]])
+  /**
+    * 处理方法定义
+    * @param stream spark 流
+    * @param ssc StreamingContext
+    */
+  def handle(stream: DStream[ConsumerRecord[KEY, VALUE]], ssc: StreamingContext)
 
+  /**
+    * 启动 spark streaming
+    */
   def start()
 
 }
@@ -55,14 +70,21 @@ abstract class KafkaSparkStreamApp [KEY, VALUE] (sparkConfigTuple: List[(String,
 
   override def createStreamingContext(): StreamingContext = {
     val conf = new SparkConf().setAll(sparkConfigTuple)
-    conf.registerKryoClasses(util.Arrays.asList(classOf[ConsumerRecord[_, _]]).toArray.asInstanceOf[Array[Class[_]]])
+//    conf.set("spark.serializer","org.apache.spark.serializer.KryoSerialize")
+//    conf.registerKryoClasses(util.Arrays.asList(classOf[ConsumerRecord[_, _]]).toArray.asInstanceOf[Array[Class[_]]])
     val durationMs = appConfig.getOrElse("duration.ms", "5000").toLong
 
-    appConfig.get(AppConfigConstant.CHECK_POINT_DIR) match {
-      case Some(checkpointDirectory) => StreamingContext.getOrCreate(checkpointDirectory,
-                                                              () =>  new StreamingContext(conf, Milliseconds(durationMs)))
-      case None =>  new StreamingContext(conf, Milliseconds(durationMs))
+    val getStreamingContextFun = () =>  {
+      val ssc = new StreamingContext(conf, Milliseconds(durationMs))
+      val stream = getStream(ssc)
+      handle(stream, ssc)
+      ssc
     }
+
+    val checkpointDirectory = appConfig.getOrElse(AppConfigConstant.CHECK_POINT_DIR, null)
+
+    StreamingContext.getOrCreate(checkpointDirectory, getStreamingContextFun)
+
   }
 
 
@@ -70,7 +92,7 @@ abstract class KafkaSparkStreamApp [KEY, VALUE] (sparkConfigTuple: List[(String,
   var useOffsetManager = true
   var kafkaOffsetManager: Option[KafkaOffsetManager] = None
 
-  override def getStream(): InputDStream[ConsumerRecord[KEY, VALUE]] = {
+  override def getStream(ssc: StreamingContext): InputDStream[ConsumerRecord[KEY, VALUE]] = {
 
     val topicArray = appConfig.get("topics") match {
       // topic 用逗号分隔。
@@ -116,8 +138,7 @@ abstract class KafkaSparkStreamApp [KEY, VALUE] (sparkConfigTuple: List[(String,
   }
 
   override def start(): Unit = {
-    val stream = getStream()
-    handle(stream)
+    val ssc = createStreamingContext()
     ssc.start()             // Start the computation
     ssc.awaitTermination()
     kafkaOffsetManager.foreach(_.close())

@@ -18,22 +18,20 @@ class WorkCountTestSSCApp(sparkConfigTuple: List[(String, String)],
                           appConfig: Map[String, String]) extends KafkaSparkStreamApp[String, String](sparkConfigTuple, kafkaConfig, appConfig) with Serializable{
 
 
-  override def handle(stream: DStream[ConsumerRecord[String, String]]): Unit = {
+  override def handle(stream: DStream[ConsumerRecord[String, String]], ssc: StreamingContext): Unit = {
 
     // 用了window就不能获得offset了。
     // 窗口长度为每次计算的批次
     // 滑动间隔，为每几秒滑动一次。
-    stream.map(r => r.value()).window(Milliseconds(15000), Milliseconds(20000)).foreachRDD(rdd => {
-      val re = rdd.map(r => (r, 1)).reduceByKey(_ + _)
-      re.foreach(println)
-      println("-------")
+    stream.map(r => r.value()).window(Milliseconds(5000), Milliseconds(3000)).foreachRDD(rdd => {
+//      val re = rdd.map(r => (r, 1)).reduceByKey(_ + _)
+      rdd.sortBy(v => v.toInt).foreach(d => print(d + " "))
+      println("\n----")
     })
-
+    ssc.checkpoint(appConfig.getOrElse(AppConfigConstant.CHECK_POINT_DIR, null))
     stream.foreachRDD(rdd => {
       saveOffset(rdd, stream)
     })
-
-    ssc.checkpoint(appConfig.getOrElse(AppConfigConstant.CHECK_POINT_DIR, null))
   }
 
   def this(sparkConfigFileName: String,
