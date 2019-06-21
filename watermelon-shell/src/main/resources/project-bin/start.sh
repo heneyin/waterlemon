@@ -3,7 +3,7 @@
 projectName=example
 
 export PROJECT_HOME="$(cd "$(dirname "$0")"/../; pwd)/"
-ehco "Project ${projectName} dir: ${PROJECT_HOME}"
+echo "Project ${projectName} dir: ${PROJECT_HOME}"
 
 ps -ef | grep ${projectName} | grep -v grep | awk '{print $2;}' | while read proPid; do
     echo "Project ${projectName} running on PID: ${proPid}, please stop it first."

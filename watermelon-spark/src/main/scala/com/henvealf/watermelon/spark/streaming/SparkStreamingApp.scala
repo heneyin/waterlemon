@@ -1,7 +1,7 @@
 package com.henvealf.watermelon.spark.streaming
 
-import java.util
 
+import com.henvealf.watermelon.common.ConfigWm
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
@@ -65,7 +65,13 @@ abstract class KafkaSparkStreamApp [KEY, VALUE] (sparkConfigTuple: List[(String,
                                                  kafkaConfig: Map[String, String],
                                                  appConfig: Map[String, String]) extends SparkStreamingApp[KEY, VALUE] {
 
-
+  def this(sparkConfigFileName: String,
+           kafkaConfigFile: String,
+           appConfigFileName: String) =
+    this( ConfigWm.getConfigTuplesByFileName(sparkConfigFileName),
+      ConfigWm.getConfigMapByFileName(kafkaConfigFile),
+      ConfigWm.getConfigMapByFileName(appConfigFileName)
+    )
 
 
   override def createStreamingContext(): StreamingContext = {

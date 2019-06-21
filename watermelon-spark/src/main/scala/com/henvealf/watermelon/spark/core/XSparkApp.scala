@@ -10,5 +10,4 @@ package com.henvealf.watermelon.spark.core
 abstract class XSparkApp() {
 
 
-
 }
