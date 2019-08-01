@@ -1,7 +1,5 @@
 package com.henvealf.watermelon.sql2;
 
-import org.apache.commons.lang3.StringUtils;
-
 /**
  * <p>
  *  Sql 抽象接口。
