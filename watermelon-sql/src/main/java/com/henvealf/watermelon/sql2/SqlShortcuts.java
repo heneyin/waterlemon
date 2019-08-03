@@ -2,9 +2,7 @@ package com.henvealf.watermelon.sql2;
 
 import com.henvealf.watermelon.sql2.method.PrestoSqlMethod;
 import com.henvealf.watermelon.sql2.method.SparkSqlMethod;
-import com.henvealf.watermelon.sql2.method.SparkSqlMethodFactory;
 import com.henvealf.watermelon.sql2.method.SqlMethod;
-import org.checkerframework.checker.units.qual.A;
 
 /**
  * <p>
