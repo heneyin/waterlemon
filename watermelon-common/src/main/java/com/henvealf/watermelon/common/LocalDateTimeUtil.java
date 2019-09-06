@@ -64,7 +64,7 @@ public class LocalDateTimeUtil {
     }
 
     public static LocalDateTime getDateTimeByTimestamp(long timestamp) {
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(System.currentTimeMillis()), ZoneId.systemDefault());
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
     }
 
 }
