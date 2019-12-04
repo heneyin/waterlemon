@@ -7,26 +7,16 @@
         <groupId>com.henvealf.watermelon</groupId>
         <version>1.0.0</version>
     </parent>
-
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>watermelon-sql-repository</artifactId>
+    <artifactId>watermelon-redis</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>org.mybatis</groupId>
-            <artifactId>mybatis</artifactId>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-redis</artifactId>
+            <scope>compile</scope>
         </dependency>
-
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-
     </dependencies>
+
 </project>
