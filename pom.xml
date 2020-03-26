@@ -33,6 +33,7 @@
         <module>watermelon-sql-repository</module>
         <module>watermelon-redis</module>
         <module>watermelon-graph</module>
+        <module>watermelon-mybatis</module>
     </modules>
 
 
