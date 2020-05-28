@@ -28,7 +28,10 @@ Start() {
             HOUR=$(date -d @${HOUR_S} +%H);
             echo "------------------ start process ${DAY} ${HOUR} ------------------------------";
 
-            spark-submit --class com.henvealf.filetokafka.FileToKafkaMain --master yarn-client  --name file-to-kafka  -–conf spark.yarn.principal=bdi@EBSCN.COM -–conf spark.yarn.keytab=/home/bdi/keytabs/bdi.keytab  ./file-to-kafka-1.0.0-jar-with-dependencies.jar "/user/bdi/loader_formatter/loader/*/${DAY}/${HOUR}" cdh.master01.com:9092,cdh.master02.com:9092,cdh.master03.com:9092 bfd_input_topic_all bdi@EBSCN.COM  /home/bdi/keytabs/bdi.keytab        
+            spark-submit --class com.henvealf.filetokafka.FileToKafkaMain --master yarn-client  --name file-to-kafka  \
+            -–conf spark.yarn.principal=EXAMPLE@EXAMPLE.COM -–conf spark.yarn.keytab=/home/example/keytabs/example.keytab  \
+            ./file-to-kafka-1.0.0-jar-with-dependencies.jar "/user/example/loader_formatter/loader/*/${DAY}/${HOUR}" \
+            cdh.master01.com:9092,cdh.master02.com:9092,cdh.master03.com:9092 bfd_input_topic_all EXAMPLE@EXAMPLE.COM   /home/example/keytabs/example.keytab
    
             wait
         done
