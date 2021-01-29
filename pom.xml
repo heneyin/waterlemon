@@ -7,7 +7,7 @@
         <mongo-java-driver-version>3.0.4</mongo-java-driver-version>
         <java.version>1.7</java.version>
         <scala.version>2.11</scala.version>
-        <spark.version>2.1.2</spark.version>
+        <spark.version>2.4.7</spark.version>
         <kafka.version>1.0.0</kafka.version>
     </properties>
 
